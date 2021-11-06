@@ -21,7 +21,6 @@ class RSA():
                 if i * block + j + 1 < lenText:
                     tmp += text[i * block + j + 1]
             self.blockText.append(tmp)
-        print(self.blockText)
 
     def enc(self):
         myenc = ""
@@ -31,9 +30,7 @@ class RSA():
             for j in i:
                 tmp += "0" * (14 - len(bin(ord(j)))) + bin(ord(j))[2:50]
             intTmp =  int(tmp, 2)
-            print(intTmp)
             myenc += str(pow(intTmp, self.e, self.n)) + " "
-        print(myenc)
 
     def dec(self):
         mydec= ""
@@ -49,15 +46,8 @@ class RSA():
                 tmpList.append(tmp2)
             for j in tmpList:
                 mydec += chr(int(j,2))
-        print(mydec)
 
 
-
-        
-
-
-#print("0" * (12 - len(bin(ord("š"))[2:50])) + bin(ord("š"))[2:50]) #full bin 
-#print(len("0" * (14 - len(bin(ord("j")))) + bin(ord("j"))[2:50]))
 RSA("Ahoj Pepo", 1000000000100000000002379, e = 7)
 RSA("403679926881504087841181453780296333777991136969207616015289871", 1000000000100000000002379, d="142857142871142857143183")
-print(math.gcd(1000000000100000000002379, 7))
+
