@@ -30,8 +30,6 @@ class RSA():
             tmp = ""
             for j in i:
                 tmp += "0" * (14 - len(bin(ord(j)))) + bin(ord(j))[2:50]
-            print(tmp)
-            print(len(tmp))
             intTmp =  int(tmp, 2)
             print(intTmp)
             myenc += str(pow(intTmp, self.e, self.n)) + " "
@@ -41,7 +39,19 @@ class RSA():
         mydec= ""
         self.blocking(24)
         for i in self.blockText:
-            print(i)
+            tmp = bin(pow(int(i), int(self.d), self.n))[2:len(bin(pow(int(i), int(self.d), self.n)))]
+            tmp = "0" * (48 - len(tmp)) + tmp
+            tmpList = []
+            for j in range(4):
+                tmp2 = ""
+                for k in range(12):
+                    tmp2 += tmp[j * 12 + k]
+                tmpList.append(tmp2)
+            for j in tmpList:
+                mydec += chr(int(j,2))
+        print(mydec)
+
+
 
         
 
@@ -51,5 +61,3 @@ class RSA():
 RSA("Ahoj Pepo", 1000000000100000000002379, e = 7)
 RSA("403679926881504087841181453780296333777991136969207616015289871", 1000000000100000000002379, d="142857142871142857143183")
 print(math.gcd(1000000000100000000002379, 7))
-
-799268815040878411814537
