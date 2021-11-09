@@ -20,7 +20,7 @@ Window {
     readonly property color myBackground: "#201e1b"
     readonly property color myWhiteFont: "#e4f8ff"
     readonly property color myBackground2: "#acb1aa"
-    readonly property color myHighLighht: "#F9D200"//"#3fa108"
+    readonly property color myHighLighht: "#F9D800"//"#3fa108"
     readonly property color myCloseImg: "#fcf8fe"
     readonly property color myCloseBtn: "#de2f05"
 
@@ -65,8 +65,8 @@ Window {
             id: window
             x: 12
             y: 12
-            width: 574
-            height: 574
+            width: 520
+            height: 300
             color: myBackground2
             radius: 4
             border.color: myUpperBar

@@ -1,6 +1,7 @@
 import math
 import secrets
 import random
+import time
 
 
 class RSA():
@@ -124,12 +125,19 @@ class genRSAKey():
         return pow(E, -1, FiN)
 
 
-print(RSA("Babička", 1000000000100000000002379, e=7).output)
-print(RSA("2cc68612452fcfcdfbbg62db4c103f3c67dec617", 1000000000100000000002379, d="142857142871142857143183").output)
+#print(RSA("Babička", 1000000000100000000002379, e=7).output)
+#print(RSA("2cc68612452fcfcdfbbg62db4c103f3c67dec617", 1000000000100000000002379, d="142857142871142857143183").output)
 # print(genRSAKey(13))
-a = genRSAKey()
+#a = genRSAKey()
 # print(a.N)
 # print(a.D)
 # print(a.E)
 #print(RSA("Babička", a.N, e=a.E).output)
 #print(RSA("212146011964206266704670067977860233320774378394020", 21552952548819843796184623, d="18008229260469546437923457").output)
+#t1 = time.time()
+#for i in range(100):
+ #  a = genRSAKey()
+  # print(str(a.N) + f"len({len(str(a.N))})")
+   # print(a.D)
+    #print(a.E)
+#print(time.time() - t1)

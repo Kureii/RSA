@@ -4,15 +4,14 @@ import QtQuick.Layouts 6.0
 import QtQuick.Timeline 1.0 
 import QtQuick.Dialogs
 
-GridLayout {
-    columns: 8
+ColumnLayout {
+
 
     TabBar {
-        id: fiveSixTab
+        id: encDecTab
         height: 56
         enabled: activeWindow
         position: TabBar.Footer
-        Layout.columnSpan: 8
         currentIndex: 0
         Layout.fillHeight: false
         font.family: "Roboto Medium"
@@ -20,11 +19,10 @@ GridLayout {
         Layout.leftMargin: 0
         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         Layout.fillWidth: true
-        Layout.minimumHeight:42
+        Layout.minimumHeight: 42
         
 
         TabButton {
-            id: fiveBtn
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             bottomPadding: 18
@@ -35,14 +33,14 @@ GridLayout {
                 Label {
                     text: "Encode"
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: fiveSixTab.currentIndex == 0 ? -2 : 0
+                    anchors.verticalCenterOffset: encDecTab.currentIndex == 0 ? -2 : 0
                     anchors.horizontalCenter: parent.horizontalCenter
                     color: parent.parent.hovered && activeWindow ? Qt.lighter(myWhiteFont, 2) : myWhiteFont
                 }
 
                 Rectangle {
                     height: 4
-                    color: fiveSixTab.currentIndex == 0 ? myHighLighht : (parent.parent.hovered && activeWindow ? Qt.lighter(myBackground, 2) : myBackground)
+                    color: encDecTab.currentIndex == 0 ? myHighLighht : (parent.parent.hovered && activeWindow ? Qt.lighter(myBackground, 2) : myBackground)
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
@@ -52,12 +50,11 @@ GridLayout {
                 }
             }
             onClicked: {
-                
+                window.height = 300
             }
         }
 
         TabButton {
-            id: sixBtn
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             bottomPadding: 18
@@ -68,14 +65,14 @@ GridLayout {
                 Label {
                     text: "Decode"
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: fiveSixTab.currentIndex == 1 ? -2 : 0
+                    anchors.verticalCenterOffset: encDecTab.currentIndex == 1 ? -2 : 0
                     anchors.horizontalCenter: parent.horizontalCenter
                     color: parent.parent.hovered && activeWindow ? Qt.lighter(myWhiteFont, 2) : myWhiteFont
                 }
 
                 Rectangle {
                     height: 4
-                    color: fiveSixTab.currentIndex == 1 ? myHighLighht : (parent.parent.hovered && activeWindow ? Qt.lighter(myBackground, 2) : myBackground)
+                    color: encDecTab.currentIndex == 1 ? myHighLighht : (parent.parent.hovered && activeWindow ? Qt.lighter(myBackground, 2) : myBackground)
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
@@ -85,8 +82,30 @@ GridLayout {
                 }
             }
             onClicked: {
-
+                window.height = 364
             }
+        }
+
+    }
+    StackLayout {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        Layout.columnSpan: 8
+        currentIndex: encDecTab.currentIndex
+
+        Encoding {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.leftMargin: 8
+            Layout.rightMargin: 8
+        }
+        
+
+        Decoding {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.leftMargin: 8
+            Layout.rightMargin: 8
         }
     }
 }
