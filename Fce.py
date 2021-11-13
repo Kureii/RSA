@@ -1,10 +1,12 @@
 import math
 import secrets
 import random
+import string
 import time
 
 
 class RSA():
+    digs = string.digits + string.ascii_letters.upper()
     def __init__(self, text, n, d=0, e=0):
         self.text = text
         self.blockText = []
@@ -16,13 +18,18 @@ class RSA():
             myOutput = self.output.split()
             tmpOutput = ""
             for i in range(len(myOutput)):
-                tmp = self.output.split()[i]
-                tmp = hex(int(tmp))
-                tmp = tmp[2: len(tmp)]
-                tmpOutput += tmp
+                tmpOutput += self.int2base(int(myOutput[i]), 15)
                 if i + 1 != len(myOutput):
-                    tmpOutput += "g"
-            self.output = tmpOutput
+                    tmpOutput += "F"
+            myOutput = ""
+            for i in range(len(tmpOutput)):
+                a = random.random()
+                if a > 0.9 and (i != 0 or i + 1 != len(tmpOutput)):
+                    myOutput += " "
+                myOutput += tmpOutput[i]
+
+
+            self.output = myOutput
         else:
             self.d = d
             self.dec()
@@ -53,9 +60,9 @@ class RSA():
 
     def dec(self):
         mydec = ""
-        self.blockText = self.text.split("g")
+        self.blockText = self.text.replace(" ", "").split("F")
         for i in self.blockText:
-            i = int(i,16)
+            i = int(i, 15)
             tmp = bin(pow(int(i), int(self.d), self.n))[
                 2:len(bin(pow(int(i), int(self.d), self.n)))]
             tmp = "0" * (48 - len(tmp)) + tmp
@@ -68,6 +75,28 @@ class RSA():
             for j in tmpList:
                 mydec += chr(int(j, 2))
         self.output = mydec
+
+    def int2base(self, x, base):
+        if x < 0:
+            sign = -1
+        elif x == 0:
+            return self.digs[0]
+        else:
+            sign = 1
+
+        x *= sign
+        digits = []
+
+        while x:
+            digits.append(self.digs[x % base])
+            x = x // base
+
+        if sign < 0:
+            digits.append('-')
+
+        digits.reverse()
+
+        return ''.join(digits)
 
 
 class genRSAKey():
@@ -116,8 +145,18 @@ class genRSAKey():
 
     def findE(self, FiN):
         while True:
-            e = random.randrange(3, 999, 2)
-            if math.gcd(e, FiN) == 1:
+            tmp = [];
+            for i in range(50):
+                e = random.randrange(3, FiN - 1, 2)
+                if math.gcd(e, FiN) == 1:
+                    tmp.append(e)
+                    
+            tmp2 = tmp[0]
+            if len(tmp):
+                for i in tmp:
+                    if i < tmp2:
+                        tmp2 = i
+                e = tmp2
                 break
         return e
 
@@ -141,3 +180,7 @@ class genRSAKey():
    # print(a.D)
     #print(a.E)
 #print(time.time() - t1)
+#a = genRSAKey()
+#b = RSA("Ahoj, jak se máš?", a.N, e = a.E).output
+#print(b)
+#print(RSA(b, a.N, d=a.D).output)
