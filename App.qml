@@ -95,14 +95,32 @@ Rectangle {
                     }
                 }
                 onClicked: {
+                    let regEx;
+                    if (modeDec.currentIndex == 0) {
+                        regEx = /(?![0-9\s])/gi;
+                    } else if (modeDec.currentIndex == 1 || modeDec.currentIndex == 3) {
+                        regEx = /(?![A-F0-9\s])/gi;
+                    } else {
+                        regEx = /(?![A-G0-9\s])/gi;
+                    }
+                    if (encodedText.text) {
+                        let found = encodedText.text.match(regEx);
+                        if(found.length == 1) {
+                            encodedTextValidate.border.color = myHighLighht
+                        } else {
+                            encodedTextValidate.border.color = myCloseBtn
+                        }
+                    } else if(wasEncodedText) {
+                        encodedTextValidate.border.color = myCloseBtn
+                    } else {
+                        encodedTextValidate.border.color = myBackground
+                    }
+                    delField.visible = true
                     decodeHighLight.visible = true
                     toDecode.enabled= true
                     tabBarHightlight1.running =true
                     decodeBtnTab.enabled = false
                     encodeBtnTab.enabled = true
-
-
-                    //window.height = 364
                 }
             }
 
@@ -122,7 +140,126 @@ Rectangle {
                 Layout.bottomMargin: 8
                 Layout.topMargin: 8
                 spacing: 4
+                // Mode
+                Rectangle {
+                    Layout.leftMargin: 8
+                    Layout.maximumHeight: height
+                    Layout.minimumHeight: height
+                    Layout.maximumWidth: width
+                    Layout.minimumWidth: width
+                    height: 32
+                    width: 576
+                    color: myBackground
+                    radius: 4
+                    RowLayout {
+                        anchors.fill: parent
+                    
 
+                        Label {
+                            text: nameMode
+                            horizontalAlignment: Text.AlignRight
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+                            font.family: "Roboto Medium"
+                            color: myWhiteFont
+                        }
+                        ComboBox {
+                            id: modeEnc
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            currentIndex: 0
+                            font.family: "Roboto Medium"
+                            model: nameModuleMode
+                            
+                            delegate: ItemDelegate {
+                                width: modeEnc.width - 10
+                                height: 22
+                                contentItem: Text {
+                                    text: modelData
+                                    color: parent.highlighted ? myUpperBar : myWhiteFont
+                                    elide: Text.ElideRight
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                    anchors.topMargin: 0
+                                    anchors.bottomMargin: 0
+                                    anchors.leftMargin: 0
+                                    anchors.rightMargin: 0
+                                    anchors.horizontalCenter: mainWindow.horizontalCenter
+                                    font.family: "Roboto Medium"
+                                }
+                                highlighted: modeEnc.highlightedIndex === index
+                                Component.onCompleted: {
+                                    background.color =  myBackground
+                                    background.radius = 2
+                                }
+                                Binding {
+                                    target: background
+                                    property: "color"
+                                    value: highlighted ? myHighLighht : myBackground
+                                }                                    
+                            }
+
+                            indicator: Image {
+                                anchors.verticalCenter: modeEnc.verticalCenter
+                                anchors.right: modeEnc.right
+                                source: "icons/UpDown.svg"
+                                anchors.rightMargin: 6
+                                sourceSize.height: 10
+                                sourceSize.width: 10
+                                fillMode: Image.Pad                                        
+                                    
+                            }
+
+                            contentItem: Text {
+                                text: modeEnc.displayText
+                                font: modeEnc.font
+                                color: modeEnc.pressed ? myCloseImg : myWhiteFont
+                                verticalAlignment: Text.AlignVCenter
+                                anchors.horizontalCenter: modeEnc.horizontalCenter
+                                elide: Text.ElideRight
+                                anchors.verticalCenter: modeEnc.verticalCenter
+                                
+                            }
+
+                            background: Rectangle {
+                                implicitWidth: 100
+                                implicitHeight: 25
+                                radius: 4
+                                color: myBackground
+                            }
+
+                            popup: Popup {
+                                y: modeEnc.height - 1
+                                width: modeEnc.width
+                                implicitHeight: contentItem.implicitHeight
+                                padding: 5
+                                contentItem: ListView {
+                                    clip: true
+                                    implicitHeight: contentHeight + 10
+                                    model: modeEnc.popup.visible ? modeEnc.delegateModel : null
+                                    currentIndex: modeEnc.highlightedIndex
+                                }                                        
+
+                                background: Rectangle {
+                                    border.width: 1
+                                    border.color: myHighLighht
+                                    radius:4
+                                    color: myBackground
+                                }
+                            }
+
+                            onActivated: {
+                                if (wasEncDone) {
+                                    encodingTextEditBorder.border.color = myCloseBtn
+                                    tmpEncodingClr = myCloseBtn
+                                }
+                            }
+                        }
+                    }  
+                }
+                // input text
                 Flickable {
                     id: openTextWindow
                     Layout.fillWidth: true
@@ -158,6 +295,8 @@ Rectangle {
                             radius: 4
                         }
                         onTextChanged: {
+                            encodingTextEditBorder.border.color = myCloseBtn
+                            tmpEncodingClr = myCloseBtn    
                             if (openText.text.length) {
                                 openTextValidate.border.color = myHighLighht
                             } else {
@@ -168,7 +307,7 @@ Rectangle {
                     }
                     ScrollBar.vertical: ScrollBar {}
                 }
-
+                // keys
                 Rectangle {
                     id: encKeys
                     Layout.fillWidth:true
@@ -184,12 +323,13 @@ Rectangle {
                     RowLayout {
                         spacing:0
                         
+                        // N Key
                         TextField {
                             id: nKeyE
+                            enabled: false
                             readOnly: true
-                            selectByMouse: true
+                            selectByMouse: false
                             color: myWhiteFont
-                            enabled: activeWindow
                             horizontalAlignment: Text.AlignHCenter
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                             Layout.leftMargin: 0
@@ -197,7 +337,6 @@ Rectangle {
                             font.family: "Roboto Medium"
                             placeholderTextColor: Qt.darker(myWhiteFont, 2)
                             placeholderText: nameNKey
-                            //validator: RegularExpressionValidator { regularExpression: /^\+?(0|[1-9]\d*)$/ }
                             Layout.rightMargin: 0
                             Layout.fillHeight: true
                             Layout.maximumHeight: 32
@@ -230,7 +369,7 @@ Rectangle {
                                     anchors.bottom: parent.bottom
                                     anchors.topMargin: parent.border.width
                                     anchors.bottomMargin: parent.border.width
-                                    anchors.rightMargin: parent.border.width
+                                    anchors.rightMargin: parent.border.width / 2
                                     color: myBackground
                                 }
 
@@ -242,22 +381,15 @@ Rectangle {
                                     wasNkeyE = true
                                     nKeyEValidate.border.color = myCloseBtn
                                 }
-                                if (eKeyValidate.border.color == nKeyEValidate.border.color) {
-                                    nKeyEValidateEditBorder.anchors.rightMargin = nKeyEValidate.border.width / 2
-                                    eKeyValidateEditBorder.anchors.leftMargin = eKeyValidate.border.width / 2
-                                } else {
-                                    nKeyEValidateEditBorder.anchors.rightMargin = nKeyEValidate.border.width
-                                    eKeyValidateEditBorder.anchors.leftMargin = eKeyValidate.border.width
-                                }
                             }
                         }
-
+                        // E Key
                         TextField {
                             id: eKey
-                            selectByMouse: true
+                            selectByMouse: false
+                            enabled: false
                             readOnly: true
                             color: myWhiteFont
-                            enabled: activeWindow
                             horizontalAlignment: Text.AlignHCenter
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                             Layout.leftMargin: 0
@@ -265,7 +397,6 @@ Rectangle {
                             font.family: "Roboto Medium"
                             placeholderTextColor: Qt.darker(myWhiteFont, 2)
                             placeholderText: nameEKey
-                            //validator: RegularExpressionValidator { regularExpression: /^\+?(0|[1-9]\d*)$/ }
                             Layout.rightMargin: 0
                             Layout.fillHeight: true
                             Layout.maximumHeight: 32            
@@ -286,27 +417,21 @@ Rectangle {
                                     anchors.bottom: parent.bottom
                                     anchors.topMargin: parent.border.width
                                     anchors.bottomMargin: parent.border.width
-                                    anchors.leftMargin: parent.border.width
+                                    anchors.leftMargin: parent.border.width / 2
                                 }
 
                             }
                             onTextChanged: {
+                                
                                 if (eKey.text.length) {
                                     eKeyValidate.border.color = myHighLighht
                                 } else {
                                     wasEKey = true
                                     eKeyValidate.border.color = myCloseBtn
                                 }
-                                if (eKeyValidate.border.color == nKeyEValidate.border.color) {
-                                    nKeyEValidateEditBorder.anchors.rightMargin = nKeyEValidate.border.width / 2
-                                    eKeyValidateEditBorder.anchors.leftMargin = eKeyValidate.border.width / 2
-                                } else {
-                                    nKeyEValidateEditBorder.anchors.rightMargin = nKeyEValidate.border.width
-                                    eKeyValidateEditBorder.anchors.leftMargin = eKeyValidate.border.width
-                                }
                             }
                         }
-
+                        // generate
                         Button {
                             id: generateBtn
                             Layout.fillHeight: true
@@ -321,9 +446,11 @@ Rectangle {
                             width: 96
                             enabled: true
                             onClicked: {
+                                eKey.enabled = true
+                                nKeyE.enabled = true
+                                eKey.selectByMouse = true
+                                nKeyE.selectByMouse = true
                                 myData.genKey()
-                                console.log(myNKey);
-                                console.log(myEKey);
                                 nKeyE.text = myNKey
                                 eKey.text = myEKey
                             }
@@ -356,7 +483,7 @@ Rectangle {
                         }
                     }
                 }
-
+                // encoding button
                 Button {
                     id: encBtn
                     Layout.rightMargin: 8
@@ -369,7 +496,40 @@ Rectangle {
                     width: 576
                     enabled: true
                     onClicked: {
-                        console.log(nKeyE.width);
+                        if (openText.text && nKeyE.text) {
+                            myData.enc(openText.text, 
+                                        nKeyE.text.substring((nameNKey.length + 2), nKeyE.text.length), 
+                                        eKey.text.substring((nameEKey.length + 2), eKey.text.length), 
+                                        modeEnc.currentIndex)
+                            wasEncDone = true
+                            modeDec.currentIndex = modeEnc.currentIndex
+                            encodingTextEditBorder.border.color = myHighLighht
+                            tmpEncodingClr = myHighLighht
+                            nKeyD.text = myNKey.substring((nameNKey.length + 2), myNKey.length)
+                            dKey.text = myDKey.substring((nameDKey.length + 2), myDKey.length)
+                            if (mainWindow.height < 400){
+                                encodeHighLight.width = encDecTab.width / 2
+                                dKeyE.visible = true
+                                decodeHighLight.visible = false
+                                encodingText.visible = true
+                                encoding.enabled = true
+                                encodingAnm.running = true
+                                openTextValidate.border.color = myHighLighht
+                                nKeyEValidate.border.color = myHighLighht
+                                eKeyValidate.border.color = myHighLighht
+                            }
+                        } else {
+                            if (!openText.text && !nKeyE.text) {
+                                nKeyEValidate.border.color = myCloseBtn
+                                eKeyValidate.border.color = myCloseBtn
+                                openTextValidate.border.color = myCloseBtn
+                            } else if (openText.text) {
+                                nKeyEValidate.border.color = myCloseBtn
+                                eKeyValidate.border.color = myCloseBtn
+                            } else {
+                                openTextValidate.border.color = myCloseBtn
+                            }
+                        }
                     }
                     background: Rectangle {
                         color: parent.down ? myHighLighht : (parent.hovered ? Qt.lighter(myBackground, 2) : myBackground)
@@ -387,8 +547,37 @@ Rectangle {
                         }
                     }
                 }
-                
-                /*Flickable {
+                // decode key
+                TextField {
+                    id: dKeyE
+                    Layout.rightMargin: 16
+                    Layout.maximumWidth: 576
+                    Layout.minimumWidth: 576
+                    Layout.maximumHeight: height
+                    Layout.minimumHeight: height
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    height: 0
+                    horizontalAlignment: Text.AlignHCenter
+                    font.capitalization: Font.AllUppercase
+                    readOnly: true
+                    selectByMouse: true
+                    visible: false
+                    color: myWhiteFont
+                    font.family: "Roboto Medium"
+                    text: myDKey
+                    background: Rectangle {
+                        color: myBackground
+                        radius: 4
+                        border.width: 2
+                        border.color: myHighLighht
+                    }
+                    onTextChanged: {
+                        encodingTextEditBorder.border.color = myCloseBtn
+                        tmpEncodingClr = myCloseBtn
+                    }
+                }
+                // encoded text
+                Flickable {
                     id: encodingText
                     Layout.fillWidth: true
                     Layout.leftMargin: 8
@@ -403,44 +592,30 @@ Rectangle {
                     height: 150
                     width: 576
                     TextArea.flickable: TextArea {
-                        id: encodedText
+                        id: encodingTextEdit
                         visible: true
+                        readOnly: true
                         selectByMouse: true
+                        enabled: true
                         color: myWhiteFont
-                        enabled: activeWindow
+                        text: myEncoding
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         wrapMode: Text.WrapAnywhere
+                        placeholderText: myEncoding
                         textFormat: Text.AutoText
-                        placeholderTextColor: Qt.darker(myWhiteFont, 2)
                         font.family: "Roboto Medium"
                         font.hintingPreference: Font.PreferFullHinting
-                        placeholderText: nameEncText
                         background: Rectangle {
-                            id:encodedTextValidate
+                            id: encodingTextEditBorder
                             border.width: 2
-                            border.color: myBackground
+                            border.color: myHighLighht
                             color: myBackground
                             radius: 4
                         }
-                        onTextChanged: {
-                            let regEx = /(?![A-F0-9\s])/gi;
-                            if (encodedText.text) {
-                                let found = encodedText.text.match(regEx);
-                                if(found.length == 1) {
-                                    encodedTextValidate.border.color = myHighLighht
-                                } else {
-                                    encodedTextValidate.border.color = myCloseBtn
-                                }
-                            } else {
-                                wasEncodedText = true
-                                encodedTextValidate.border.color = myCloseBtn
-                            }
-                            
-                        }
                     }
                     ScrollBar.vertical: ScrollBar {}
-                } */ 
+                } 
             }
             
             //Decoding
@@ -451,8 +626,142 @@ Rectangle {
                 Layout.rightMargin: 8
                 Layout.bottomMargin: 8
                 Layout.topMargin: 8
-                spacing: 6
+                spacing: 4
+                // Mode
+                Rectangle {
+                    Layout.leftMargin: 8
+                    Layout.maximumHeight: height
+                    Layout.minimumHeight: height
+                    Layout.maximumWidth: width
+                    Layout.minimumWidth: width
+                    height: 32
+                    width: 576
+                    color: myBackground
+                    radius: 4
+                    RowLayout {
+                        anchors.fill: parent
+                        Label {
+                            text: nameMode
+                            horizontalAlignment: Text.AlignRight
+                            verticalAlignment: Text.AlignVCenter
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                            Layout.fillHeight: true
+                            Layout.fillWidth: true
+                            font.family: "Roboto Medium"
+                            color: myWhiteFont
+                        }
+                        ComboBox {
+                            id: modeDec
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            currentIndex: 0
+                            font.family: "Roboto Medium"
+                            model: nameModuleMode2
+                            
+                            delegate: ItemDelegate {
+                                width: modeDec.width - 10
+                                height: 22
+                                contentItem: Text {
+                                    text: modelData
+                                    color: parent.highlighted ? myUpperBar : myWhiteFont
+                                    elide: Text.ElideRight
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                    anchors.topMargin: 0
+                                    anchors.bottomMargin: 0
+                                    anchors.leftMargin: 0
+                                    anchors.rightMargin: 0
+                                    anchors.horizontalCenter: mainWindow.horizontalCenter
+                                    font.family: "Roboto Medium"
+                                }
+                                highlighted: modeDec.highlightedIndex === index
+                                Component.onCompleted: {
+                                    background.color =  myBackground
+                                    background.radius = 2
+                                }
+                                Binding {
+                                    target: background
+                                    property: "color"
+                                    value: highlighted ? myHighLighht : myBackground
+                                }                                    
+                            }
 
+                            indicator: Image {
+                                anchors.verticalCenter: modeDec.verticalCenter
+                                anchors.right: modeDec.right
+                                source: "icons/UpDown.svg"
+                                anchors.rightMargin: 6
+                                sourceSize.height: 10
+                                sourceSize.width: 10
+                                fillMode: Image.Pad                                        
+                                    
+                            }
+
+                            contentItem: Text {
+                                text: modeDec.displayText
+                                font: modeDec.font
+                                color: modeDec.pressed ? myCloseImg : myWhiteFont
+                                verticalAlignment: Text.AlignVCenter
+                                anchors.horizontalCenter: modeDec.horizontalCenter
+                                elide: Text.ElideRight
+                                anchors.verticalCenter: modeDec.verticalCenter
+                                
+                            }
+
+                            background: Rectangle {
+                                implicitWidth: 100
+                                implicitHeight: 25
+                                radius: 0
+                                color: myBackground
+                            }
+
+                            popup: Popup {
+                                y: modeDec.height - 1
+                                width: modeDec.width
+                                implicitHeight: contentItem.implicitHeight
+                                padding: 5
+                                contentItem: ListView {
+                                    clip: true
+                                    implicitHeight: contentHeight + 10
+                                    model: modeDec.popup.visible ? modeDec.delegateModel : null
+                                    currentIndex: modeDec.highlightedIndex
+                                }                                        
+
+                                background: Rectangle {
+                                    border.width: 1
+                                    border.color: myHighLighht
+                                    radius:4
+                                    color: myBackground
+                                }
+                            }
+
+                            onActivated: {
+                                decodingTextEditBorder.border.color = myCloseBtn
+                                tmpDecodingClr = myCloseBtn
+                                let regEx;
+                                if (modeDec.currentIndex == 0) {
+                                    regEx = /(?![0-9\s])/gi;
+                                } else if (modeDec.currentIndex == 1 || modeDec.currentIndex == 3) {
+                                    regEx = /(?![A-F0-9\s])/gi;
+                                } else {
+                                    regEx = /(?![A-G0-9\s])/gi;
+                                }
+                                if (encodedText.text) {
+                                    let found = encodedText.text.match(regEx);
+                                    if(found.length == 1) {
+                                        encodedTextValidate.border.color = myHighLighht
+                                    } else {
+                                        encodedTextValidate.border.color = myCloseBtn
+                                    }
+                                } else {
+                                    wasEncodedText = true
+                                    encodedTextValidate.border.color = myCloseBtn
+                                }
+                            }
+                        }
+                    }  
+                }
+                // input text
                 Flickable {
                     id: encodedTextWindow
                     Layout.fillWidth: true
@@ -488,7 +797,16 @@ Rectangle {
                             radius: 4
                         }
                         onTextChanged: {
-                            let regEx = /(?![A-F0-9\s])/gi;
+                            decodingTextEditBorder.border.color = myCloseBtn
+                            tmpDecodingClr = myCloseBtn
+                            let regEx;
+                            if (modeDec.currentIndex == 0) {
+                                regEx = /(?![0-9\s])/gi;
+                            } else if (modeDec.currentIndex == 1 || modeDec.currentIndex == 3) {
+                                regEx = /(?![A-F0-9\s])/gi;
+                            } else {
+                                regEx = /(?![A-G0-9\s])/gi;
+                            }
                             if (encodedText.text) {
                                 let found = encodedText.text.match(regEx);
                                 if(found.length == 1) {
@@ -505,7 +823,7 @@ Rectangle {
                     }
                     ScrollBar.vertical: ScrollBar {}
                 }
-
+                // keys
                 Rectangle { 
                     Layout.fillWidth:true
                     Layout.leftMargin: 8
@@ -574,6 +892,8 @@ Rectangle {
 
                             }
                             onTextChanged: {
+                                decodingTextEditBorder.border.color = myCloseBtn
+                                tmpEncodingClr = myCloseBtn
                                 if (nKeyD.text.length) {
                                     nKeyDValidate.border.color = myHighLighht
                                 } else {
@@ -642,6 +962,8 @@ Rectangle {
 
                             }
                             onTextChanged: {
+                                decodingTextEditBorder.border.color = myCloseBtn
+                                tmpDecodingClr = myCloseBtn
                                 if (dKey.text.length != 0) {
                                     dKeyValidate.border.color = myHighLighht
                                 } else {
@@ -706,7 +1028,7 @@ Rectangle {
                         }
                     }
                 }
-
+                // decoding btn
                 Button {
                     id: decodeBtn
                     height: 32
@@ -720,8 +1042,33 @@ Rectangle {
                     width: 576
                     enabled: true
                     onClicked: {
-                        console.log(nKeyD.width);
-                        console.log(layout.width);
+                        if (encodedText.text && encodedTextValidate.border.color == myHighLighht
+                        && nKeyD.text && dKey.text) {
+                            nKeyDValidate.border.color = myCloseBtn
+                            myData.dec(encodedText.text, 
+                                        nKeyD.text.toString(), 
+                                        dKey.text.toString(), 
+                                        modeDec.currentIndex)
+                            nKeyDValidate.border.color = myHighLighht
+                            decodingTextEditBorder.border.color = myHighLighht
+                            tmpDecodingClr = myHighLighht
+                            decodingText.visible = true
+                            if (!wasDecDone) {
+                                decoding.enabled = true
+                                decodingAnm.running = true
+                            }
+                            wasDecDone = true
+                        } else  {
+                            if (!encodedText.text) {
+                                encodedTextValidate.border.color = myCloseBtn
+                            }
+                            if (!nKeyD.text) {
+                                nKeyDValidate.border.color = myCloseBtn
+                            }
+                            if (!dKey.text) {
+                                dKeyValidate.border.color = myCloseBtn
+                            }
+                        }
                     }
                     background: Rectangle {
                         anchors.fill: parent
@@ -738,16 +1085,70 @@ Rectangle {
                         }
                     }
                 }
-                
-                Rectangle {
+                // delety field
+                TextField {
+                    id: delField
+                    Layout.rightMargin: 16
+                    Layout.maximumWidth: 576
+                    Layout.minimumWidth: 576
+                    Layout.maximumHeight: height
+                    Layout.minimumHeight: height
+                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                    height: 32
+                    horizontalAlignment: Text.AlignHCenter
+                    font.capitalization: Font.AllUppercase
                     visible: false
-                    Layout.fillWidth:true
+                    color: myWhiteFont
+                    font.family: "Roboto Medium"
+                    text: myDKey
+                    background: Rectangle {
+                        id: delBorder
+                        color: myBackground
+                        radius: 4
+                        border.width: 2
+                        border.color: myHighLighht
+                    }
+                }
+                // decoded text
+                Flickable {
+                    id: decodingText
+                    Layout.fillWidth: true
                     Layout.leftMargin: 8
                     Layout.rightMargin: 8
-                    Layout.minimumHeight: 160
-                    color: "#f30"
-                }
-
+                    Layout.topMargin: -2
+                    Layout.bottomMargin: -4
+                    Layout.maximumHeight: height
+                    Layout.minimumHeight: height
+                    Layout.maximumWidth: width
+                    Layout.minimumWidth: width
+                    visible: false
+                    height: 150
+                    width: 576
+                    TextArea.flickable: TextArea {
+                        id: decodingTextEdit
+                        visible: true
+                        readOnly: true
+                        selectByMouse: true
+                        enabled: true
+                        color: myWhiteFont
+                        text: myDecoding
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        wrapMode: Text.WrapAnywhere
+                        placeholderText: myEncoding
+                        textFormat: Text.AutoText
+                        font.family: "Roboto Medium"
+                        font.hintingPreference: Font.PreferFullHinting
+                        background: Rectangle {
+                            id: decodingTextEditBorder
+                            border.width: 2
+                            border.color: myHighLighht
+                            color: myBackground
+                            radius: 4
+                        }
+                    }
+                    ScrollBar.vertical: ScrollBar {}
+                } 
             }
         }
 
@@ -758,13 +1159,34 @@ Rectangle {
                     id: tabBarHightlight1
                     easing.bezierCurve: [0.645,0.045,0.355,1,1,1]
                     running: false
-                    duration: 1000
+                    duration: wasEncDone || wasDecDone ? (wasEncDone && wasDecDone ? 750 : 2000): 500
                     loops: 1
-                    to: 1000
+                    to: 500
                     from: 0
+                    onFinished: {
+                        tabBarHightlight1.running = false
+                        toDecode.enabled = false
+                        delField.visible = false
+                        encodeHighLight.width = 0
+                        decodeHighLight.width = encDecTab.width / 2
+                        if (wasDecDone) {
+                            mainWindow.height = 484                          
+                        } else {
+                            mainWindow.height = 354
+                        }
+                        encodedTextWindow.height = 150
+                        deletedBtnText.color = "#00000000"
+                        deletedBtn.width = 0
+                        dKey.width = 288
+                        dKeyValidate.radius = 4
+                        nKeyD.width = 288
+                        encodedTextValidate.border.color = encodedText.text ? myHighLighht : (wasEncodedText ? myCloseBtn : myBackground)
+                        nKeyDValidate.border.color = nKeyD.text ? myHighLighht : (wasNkeyD ? myCloseBtn : myBackground)
+                        dKeyValidate.border.color = dKey.text ? myHighLighht : (wasDKey ? myCloseBtn : myBackground)
+                    }
                 }
             ]
-            endFrame: 1000
+            endFrame: 500
             startFrame: 0
             enabled: false
 
@@ -798,12 +1220,12 @@ Rectangle {
                 target: mainWindow
                 property: "height"
                 Keyframe {
-                    value: 324
-                    frame: 400
+                    value: wasDecDone ? 484 : 354
+                    frame: 500
                 }
 
                 Keyframe {
-                    value: 300
+                    value: wasEncDone ? 522 : 335
                     frame: 0
                 }
             }
@@ -942,6 +1364,96 @@ Rectangle {
                     frame: 0
                 }
             }
+            KeyframeGroup {
+                target: delField
+                property: "visible"
+
+                Keyframe {
+                    value: wasEncDone || wasDecDone ? true : false
+                    frame: 300
+                }
+                Keyframe {
+                    value: false
+                    frame: 301
+                }
+                Keyframe {
+                    value: wasEncDone || wasDecDone ? true : false
+                    frame: 1
+                }
+                Keyframe {
+                    value: false
+                    frame: 0
+                }
+            }
+            KeyframeGroup {
+                target: delField
+                property: "height"
+                Keyframe {
+                    value: 32
+                    frame: 0
+                }
+                Keyframe {
+                    value: 0
+                    frame: 301
+                }
+            }
+            KeyframeGroup {
+                target: decodingText
+                property: "visible"
+
+                Keyframe {
+                    value: wasEncDone || wasDecDone ? true : false
+                    frame: 299
+                }
+                Keyframe {
+                    value: wasDecDone ? true : false
+                    frame: 300
+                }
+                Keyframe {
+                    value: wasEncDone || wasDecDone ? true : false
+                    frame: 1
+                }
+                Keyframe {
+                    value: wasDecDone ? true : false
+                    frame: 0
+                }
+            }
+            KeyframeGroup {
+                target: decodingText
+                property: "height"
+                Keyframe {
+                    value: 150
+                    frame: 0
+                }
+                Keyframe {
+                    value: 128
+                    frame: 401
+                }
+            }
+            KeyframeGroup {
+                target: decodingTextEditBorder
+                property: "border.color"
+                Keyframe {
+                    value: encodingTextEditBorder.border.color
+                    frame: 0
+                }
+                Keyframe {
+                    value: wasDecDone ? tmpDecodingClr : myBackground
+                    frame: 300
+                }
+            }
+            KeyframeGroup {
+                target: delBorder
+                property: "border.color"
+                Keyframe {
+                    value: myHighLighht
+                    frame: 0
+                }
+                Keyframe {
+                    value: myBackground
+                    frame: 300
+                }
+            }            
         }
 
         Timeline {
@@ -950,13 +1462,24 @@ Rectangle {
                 TimelineAnimation {
                     id: tabBarHightlight2
                     running: false
-                    duration: 1000
+                    duration: wasEncDone || wasDecDone ? (wasEncDone && wasDecDone ? 750 : 2000): 500
                     loops: 1
-                    to: 1000
+                    to: 500
                     from: 0
+                    onFinished: {
+                        toEncode.enabled = false
+                        tabBarHightlight2.running = false
+                        if (wasEncDone) {
+                            mainWindow.height = 522
+                        } else {
+                            mainWindow.height = 333
+                        }
+                        decodeHighLight.visible = false
+                        encodeHighLight.width = encDecTab.width / 2
+                    }
                 }
             ]
-            endFrame: 1000
+            endFrame:500
             startFrame: 0
             enabled: false
             KeyframeGroup {
@@ -977,7 +1500,7 @@ Rectangle {
                 property: "width"
                 Keyframe {
                     value: encDecTab.width / 2
-                    frame: 0
+                    frame: 1
                 }
 
                 Keyframe {
@@ -989,12 +1512,12 @@ Rectangle {
                 target: mainWindow
                 property: "height"
                 Keyframe {
-                    value: 300
+                    value: wasEncDone ? 522 : 335
                     frame: 500
                 }
 
                 Keyframe {
-                    value: 324
+                    value: wasDecDone ? 484 : 354
                     frame: 0
                 }
             }
@@ -1009,6 +1532,32 @@ Rectangle {
                 Keyframe {
                     value: 150
                     frame: 0
+                }
+            }
+            KeyframeGroup {
+                target: dKeyE
+                property: "height"
+                Keyframe {
+                    value: 32
+                    frame: 500
+                }
+
+                Keyframe {
+                    value: 0
+                    frame: 125
+                }
+            }
+            KeyframeGroup {
+                target: encodingText
+                property: "height"
+                Keyframe {
+                    value: 150
+                    frame: 500
+                }
+
+                Keyframe {
+                    value: wasEncDone && wasDecDone ? 128 : 0
+                    frame: wasEncDone && wasDecDone ? 0 : 125
                 }
             }
             KeyframeGroup {
@@ -1089,11 +1638,154 @@ Rectangle {
                     frame: 0
                 }
             }
+            
+        }
+
+        Timeline {
+            id: encoding
+            currentFrame: 0
+            animations: [
+                TimelineAnimation {
+                    id: encodingAnm
+                    easing.bezierCurve: [0.645,0.045,0.355,1,1,1]
+                    running: false
+                    duration: 2000
+                    loops: 1
+                    to: 2000
+                    from: 0
+                    onFinished: {
+                        encoding.enabled = false
+                        encodingAnm.running = false
+                        dKeyE.height = 32
+                        encodingText.height = 150
+                        mainWindow.height = 522
+                    }
+                }
+            ]
+            endFrame: 2000
+            startFrame: 0
+            enabled: false
+
+            KeyframeGroup {
+                target: dKeyE
+                property: "visible"
+                Keyframe {
+                    frame: 1
+                    value: true
+                }
+
+                Keyframe {
+                    frame: 0
+                    value: false
+                }
+            }
+
+            KeyframeGroup {
+                target: dKeyE
+                property: "height"
+                Keyframe {
+                    frame: 1
+                    value: 0
+                }
+
+                Keyframe {
+                    frame: 0
+                    value: 0
+                }
+
+                Keyframe {
+                    frame: 2000
+                    value: 32
+                }
+            }
+
+            KeyframeGroup {
+                target: encodingText
+                property: "visible"
+                Keyframe {
+                    frame: 0
+                    value: true
+                }
+            }
+
+            KeyframeGroup {
+                target: encodingText
+                property: "height"
+                Keyframe {
+                    frame: 0
+                    value: 0
+                }
+
+                Keyframe {
+                    frame: 2000
+                    value: 150
+                }
+            }
+
+            KeyframeGroup {
+                target: mainWindow
+                property: "height"
+                Keyframe {
+                    frame: 0
+                    value: 338
+                }
+
+                Keyframe {
+                    frame: 2000
+                    value: 522
+                }
+            }
+        }
+
+        Timeline {
+            id: decoding
+            animations: [
+                TimelineAnimation {
+                    id: decodingAnm
+                    easing.bezierCurve: [0.645,0.045,0.355,1,1,1]
+                    running: false
+                    duration: 2000
+                    loops: 1
+                    to: 2000
+                    from: 0
+                }
+            ]
+            endFrame: 2000
+            startFrame: 0
+            enabled: false
+
+            KeyframeGroup {
+                target: mainWindow
+                property: "height"
+                Keyframe {
+                    frame: 0
+                    value: 354
+                }
+
+                Keyframe {
+                    frame: 2000
+                    value: 484
+                }
+            }
+
+            KeyframeGroup {
+                target: decodingText
+                property: "height"
+                Keyframe {
+                    frame: 0
+                    value: 0
+                }
+
+                Keyframe {
+                    frame: 2000
+                    value: 128
+                }
+            }
         }
     }
 }
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:480;width:640}D{i:13}D{i:35}
+    D{i:0;autoSize:true;height:480;width:640}
 }
 ##^##*/

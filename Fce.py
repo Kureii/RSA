@@ -7,7 +7,8 @@ import time
 
 class RSA():
     digs = string.digits + string.ascii_letters.upper()
-    def __init__(self, text, n, d=0, e=0):
+
+    def __init__(self, text, n, d=0, e=0, mode=0):
         self.text = text
         self.blockText = []
         self.n = n
@@ -15,30 +16,48 @@ class RSA():
         if e:
             self.e = e
             self.enc()
-            myOutput = self.output.split()
-            tmpOutput = ""
-            for i in range(len(myOutput)):
-                tmpOutput += self.int2base(int(myOutput[i]), 15)
-                if i + 1 != len(myOutput):
-                    tmpOutput += "F"
-            myOutput = ""
-            for i in range(len(tmpOutput)):
-                a = random.random()
-                if a > 0.9 and (i != 0 or i + 1 != len(tmpOutput)):
-                    myOutput += " "
-                myOutput += tmpOutput[i]
-
-
-            self.output = myOutput
+            if mode:
+                if mode == 1:
+                    myOutput = self.output.split()
+                    tmpOutput = ""
+                    for i in myOutput:
+                        tmp = hex(int(i)).upper()
+                        tmpOutput += tmp[2:len(tmp)] + " "
+                    self.output = tmpOutput
+                else:
+                    myOutput = self.output.split()
+                    tmpOutput = ""
+                    if mode == 2:
+                        base = 16
+                    else:
+                        base = 15
+                    for i in range(len(myOutput)):
+                        tmpOutput += self.int2base(int(myOutput[i]), base)
+                        if i + 1 != len(myOutput):
+                            if mode == 2:
+                                tmpOutput += "G"
+                            else:
+                                tmpOutput += "F"
+                    myOutput = ""
+                    for i in range(len(tmpOutput)):
+                        a = random.random()
+                        if a > 0.9 and (i != 0 or i + 1 != len(tmpOutput)):
+                            myOutput += " "
+                        myOutput += tmpOutput[i]
+                    self.output = myOutput
         else:
             self.d = d
-            self.dec()
+            self.dec(mode)
 
     def blocking(self, block):
         text = self.text
         lenText = len(text)
         if block < lenText:
-            for i in range(lenText // block + 1):
+            if lenText % block:
+                pls = 1
+            else:
+                pls = 0
+            for i in range(lenText // block + pls):
                 tmp = text[i * block]
                 for j in range(block - 1):
                     if i * block + j + 1 < lenText:
@@ -58,11 +77,26 @@ class RSA():
             myenc += str(pow(intTmp, self.e, self.n)) + " "
         self.output = myenc
 
-    def dec(self):
+    def dec(self, mode):
         mydec = ""
-        self.blockText = self.text.replace(" ", "").split("F")
+        print(mode)
+        ' '.join(self.text.split())
+        if self.text[-1] == " ":
+            self.text = self.text[0:-1]
+        if mode == 1 or mode == 0:
+            self.blockText = self.text.split()
+        elif (mode == 2):
+            self.blockText = self.text.replace(" ", "").split("G")
+        else:
+            self.blockText = self.text.replace(" ", "").split("F")
+        print(self.blockText)
         for i in self.blockText:
-            i = int(i, 15)
+            if mode == 1 or mode == 2:
+                i = int(i, 16)
+            elif mode == 3:
+                i = int(i, 15)
+            else:
+                i = int(i)
             tmp = bin(pow(int(i), int(self.d), self.n))[
                 2:len(bin(pow(int(i), int(self.d), self.n)))]
             tmp = "0" * (48 - len(tmp)) + tmp
@@ -145,12 +179,12 @@ class genRSAKey():
 
     def findE(self, FiN):
         while True:
-            tmp = [];
+            tmp = []
             for i in range(50):
                 e = random.randrange(3, FiN - 1, 2)
                 if math.gcd(e, FiN) == 1:
                     tmp.append(e)
-                    
+
             tmp2 = tmp[0]
             if len(tmp):
                 for i in tmp:
@@ -163,24 +197,5 @@ class genRSAKey():
     def findD(self, E, FiN):
         return pow(E, -1, FiN)
 
-
-#print(RSA("Babička", 1000000000100000000002379, e=7).output)
-#print(RSA("2cc68612452fcfcdfbbg62db4c103f3c67dec617", 1000000000100000000002379, d="142857142871142857143183").output)
-# print(genRSAKey(13))
-#a = genRSAKey()
-# print(a.N)
-# print(a.D)
-# print(a.E)
-#print(RSA("Babička", a.N, e=a.E).output)
-#print(RSA("212146011964206266704670067977860233320774378394020", 21552952548819843796184623, d="18008229260469546437923457").output)
-#t1 = time.time()
-#for i in range(100):
- #  a = genRSAKey()
-  # print(str(a.N) + f"len({len(str(a.N))})")
-   # print(a.D)
-    #print(a.E)
-#print(time.time() - t1)
-#a = genRSAKey()
-#b = RSA("Ahoj, jak se máš?", a.N, e = a.E).output
-#print(b)
-#print(RSA(b, a.N, d=a.D).output)
+print(RSA("AA734E0E7 4535CC0C46CF7D3A0CB6100927 0161CDDF120C2030DB9 0 7543B3D8CBFD5 635C 02D13E5D774290 3FE0552E21D 4 ED51550D B57",
+    5743779343637690277298469, d=3446591596448902481012743, mode=3).output)

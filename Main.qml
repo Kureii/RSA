@@ -23,7 +23,9 @@ Window {
 
     property string myNKey: "0"
     property string myEKey: "0"
-    property string myDkey: "0"
+    property string myDKey: "0"
+    property string myEncoding: ""
+    property string myDecoding: ""
 
     property string nameDec: ""
     property string nameDKey: ""
@@ -35,6 +37,12 @@ Window {
     property string nameDecTab: ""
     property string nameEncTab: ""
     property string nameOpenTxt: ""
+    property string nameMode: ""
+    property var nameModuleMode: []
+    property var nameModuleMode2: []
+
+    property color tmpEncodingClr: "#fff"
+    property color tmpDecodingClr: "#fff"
 
     readonly property color myUpperBar: "#1a1512"
     readonly property color myBackground: "#201e1b"
@@ -405,15 +413,23 @@ Window {
     Connections {
         target: myData
         function onMyNKey(n) {
-            myNKey = n // Number.fromLocaleString(Qt.locale(), n)
+            myNKey = nameNKey + ": " + n
         }
 
         function onMyEKey(e) {
-            myEKey = e //Number.fromLocaleString(Qt.locale(), e)
+           myEKey = nameEKey + ": " + e
         }
 
         function onMyDKey(d) {
-            myDkey = d //Number.fromLocaleString(Qt.locale(), d)
+            myDKey = nameDKey + ": " + d
+        }
+
+        function onMyEncoding(x) {
+            myEncoding = x
+        }
+        function onMyDecoding(y) {
+            myDecoding = y
+            console.log(myDecoding);
         }
     }
 
@@ -449,6 +465,15 @@ Window {
         function onNameOpenTxt(x) {
             nameOpenTxt = x
         }
+        function onNameMode(x) {
+            nameMode = x
+        }
+        function onNameModuleMode(x) {
+            nameModuleMode = x
+        }
+        function onNameModuleMode2(x) {
+            nameModuleMode2 = x
+        }
     }
 
     Timeline {
@@ -461,6 +486,18 @@ Window {
                 loops: 1
                 to: 1000
                 from: 0
+                onFinished: {
+                    lang.running = false
+                    timeline.enabled = false
+                    maskApp.color = "#00acb1aa"
+                    mainWindow.width = 600
+                    mainWindow.height = 335
+                    mainWindow.x = myX
+                    mainWindow.y = myY
+                    window.color = myBackground2
+                    langApp.currentIndex = 1
+                    minBtn.color = myCloseImg
+                }
             }
         ]
         endFrame: 1000
@@ -534,7 +571,7 @@ Window {
             property: "height"
             Keyframe {
                 easing.bezierCurve: [0.234,0.0012,0.299,0.0288,0.418,0.481,0.562,1.01,0.568,1.21,0.724,1.03,0.807,0.903,0.87,1.02,1,1]
-                value: 300
+                value: 335
                 frame: 750
             }
 

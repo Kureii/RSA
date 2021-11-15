@@ -3,6 +3,7 @@ import Fce
 from Lang import appLang
 from PySide6.QtCore import QObject, Slot, Signal
 
+
 class GetData(QObject):
     def __init__(self):
         QObject.__init__(self)
@@ -10,8 +11,8 @@ class GetData(QObject):
     myNKey = Signal(str)
     myEKey = Signal(str)
     myDKey = Signal(str)
-
-
+    myEncoding = Signal(str)
+    myDecoding = Signal(str)
 
     @Slot()
     def genKey(self):
@@ -20,10 +21,23 @@ class GetData(QObject):
         self.myEKey.emit(str(a.E))
         self.myDKey.emit(str(a.D))
 
+    @Slot(str, str, str, int)
+    def enc(self, txt, n, e, mode):
+        output = Fce.RSA(txt, int(n), e=int(e), mode=mode).output
+        self.myEncoding.emit(output)
+
+    @Slot(str, str, str, int)
+    def dec(self, txt, n, d, mode):
+        if mode:
+            mytxt = txt.upper()
+        myoutout = Fce.RSA(mytxt, int(n), d=int(d), mode=mode).output
+        self.myDecoding.emit(myoutout)
+
+
 class Language(QObject):
     def __init__(self):
         QObject.__init__(self)
-    
+
     nameDec = Signal(str)
     nameDKey = Signal(str)
     nameEKey = Signal(str)
@@ -34,7 +48,10 @@ class Language(QObject):
     nameDecTab = Signal(str)
     nameEncTab = Signal(str)
     nameOpenTxt = Signal(str)
-        
+    nameMode = Signal(str)
+    nameModuleMode = Signal(list)
+    nameModuleMode2 = Signal(list)
+
     @Slot(str)
     def getLang(self, lng):
         myLang = appLang[lng]
@@ -48,6 +65,6 @@ class Language(QObject):
         self.nameDecTab.emit(myLang['nameDecTab'])
         self.nameEncTab.emit(myLang['nameEncTab'])
         self.nameOpenTxt.emit(myLang['nameOpenTxt'])
-            
-    
-
+        self.nameMode.emit(myLang['nameMode'])
+        self.nameModuleMode.emit(myLang['nameModuleMode'])
+        self.nameModuleMode2.emit(myLang['nameModuleMode2'])

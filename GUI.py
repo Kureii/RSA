@@ -8,7 +8,7 @@ import Connection
 
 
 class runQML():
-    def __init__(self, dic={}):
+    def __init__(self):
         sys_argv = sys.argv
         sys_argv += ['--style', 'Fusion']
         self.app = QApplication(sys_argv)
