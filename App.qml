@@ -57,7 +57,6 @@ Rectangle {
                     }
                 }
                 onClicked: {
-                    //window.height = 300
                     toEncode.enabled = true
                     tabBarHightlight2.running = true
                     decodeBtnTab.enabled = true
@@ -784,6 +783,7 @@ Rectangle {
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         wrapMode: Text.WrapAnywhere
+                        font.capitalization: Font.AllUppercase
                         textFormat: Text.AutoText
                         placeholderTextColor: Qt.darker(myWhiteFont, 2)
                         font.family: "Roboto Medium"
@@ -1045,10 +1045,10 @@ Rectangle {
                         if (encodedText.text && encodedTextValidate.border.color == myHighLighht
                         && nKeyD.text && dKey.text) {
                             nKeyDValidate.border.color = myCloseBtn
-                            myData.dec(encodedText.text, 
+                            myData.dec(encodedText.text.toString(), 
                                         nKeyD.text.toString(), 
                                         dKey.text.toString(), 
-                                        modeDec.currentIndex)
+                                        modeDec.currentIndex) 
                             nKeyDValidate.border.color = myHighLighht
                             decodingTextEditBorder.border.color = myHighLighht
                             tmpDecodingClr = myHighLighht

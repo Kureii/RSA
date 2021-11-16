@@ -79,7 +79,6 @@ class RSA():
 
     def dec(self, mode):
         mydec = ""
-        print(mode)
         ' '.join(self.text.split())
         if self.text[-1] == " ":
             self.text = self.text[0:-1]
@@ -89,7 +88,6 @@ class RSA():
             self.blockText = self.text.replace(" ", "").split("G")
         else:
             self.blockText = self.text.replace(" ", "").split("F")
-        print(self.blockText)
         for i in self.blockText:
             if mode == 1 or mode == 2:
                 i = int(i, 16)
@@ -196,6 +194,3 @@ class genRSAKey():
 
     def findD(self, E, FiN):
         return pow(E, -1, FiN)
-
-print(RSA("AA734E0E7 4535CC0C46CF7D3A0CB6100927 0161CDDF120C2030DB9 0 7543B3D8CBFD5 635C 02D13E5D774290 3FE0552E21D 4 ED51550D B57",
-    5743779343637690277298469, d=3446591596448902481012743, mode=3).output)

@@ -429,7 +429,6 @@ Window {
         }
         function onMyDecoding(y) {
             myDecoding = y
-            console.log(myDecoding);
         }
     }
 

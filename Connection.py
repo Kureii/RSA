@@ -30,8 +30,10 @@ class GetData(QObject):
     def dec(self, txt, n, d, mode):
         if mode:
             mytxt = txt.upper()
-        myoutout = Fce.RSA(mytxt, int(n), d=int(d), mode=mode).output
-        self.myDecoding.emit(myoutout)
+        mytxt = txt
+        outout = Fce.RSA(mytxt, int(n), d=int(d), mode=mode).output
+        print(outout)
+        self.myDecoding.emit(str(outout))
 
 
 class Language(QObject):
